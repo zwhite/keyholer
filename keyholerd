@@ -6,7 +6,7 @@ Process:
     1. User visits https://darkstar.frop.org/
     2. User enters their username, presses submit
         2a. keyholer-fe submits command over socket, "login <username>"
-        2b. keyholer-be checks for ~<username>/.phonenumber, if bad/missing 
+        2b. keyholer-be checks for ~<username>/.phonenumber, if bad/missing
             return False
         2c. keyholer-be generates and sends random code via SMS, return True
         2d. keyholer-fe checks return value, returns error if False
@@ -17,7 +17,7 @@ Process:
         3d. keyholer-be returns: True <comma-separated list of ID's>
     4. keyholer-fe displays the list of existing keys, textarea for new key
     5. User pastes a new key into the textarea, clicks Submit
-        5a. keyholer-fe submits command over socket, 
+        5a. keyholer-fe submits command over socket,
             "add_key <username> <code> <ssh_key>"
         5b. keyholer-be makes sure the code is valid, if not return False
         5b. keyholer-be makes sure the ssh_key is valid, if not return False

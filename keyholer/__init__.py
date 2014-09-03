@@ -42,6 +42,7 @@ def user_keyfile(username):
 
     return None
 
+
 def validate_key(keytext):
     """Verifies that keytext is a proper entry for authorized_keys
     """
@@ -71,4 +72,4 @@ def verify_code(username, code):
         if time() - usercodes[username][1] < 300:
             return True
 
-    return false
+    return False

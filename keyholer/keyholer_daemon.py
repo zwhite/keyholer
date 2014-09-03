@@ -1,6 +1,3 @@
-from random import randint
-from time import time
-
 from keyholer import generate_code, user_keyfile, validate_key, verify_code
 from keyholer.line_request_handler import LineRequestHandler
 
@@ -42,7 +39,6 @@ class KeyholerDaemon(LineRequestHandler):
                 keys.append(comment)
 
         return 'True %s' % ','.join(keys)
-
 
     def cmd_add_key(self, username, code, *ssh_key):
         """Add the provided ssh_key to username's authorized_keys file.
