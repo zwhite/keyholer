@@ -2,7 +2,11 @@
 """Listen on a UNIX domain socket to manage user SSH keys.
 """
 import atexit
-from os import remove
+from getpass import getuser
+from os import chown, makedirs, path, stat, remove
+from pwd import getpwnam
+from grp import getgrnam
+from sys import argv
 from SocketServer import UnixStreamServer
 
 from keyholer import conf
@@ -17,6 +21,33 @@ def cleanup_socket():
 
 
 if __name__ == "__main__":
+    ## Make sure our environment is setup correctly
+    # We should run as root, or some other user who can access authorized_keys
+    if getuser() != zwhite:  # FIXME: Change to root
+        print '[ERROR] You must run %s as root!' % argv[0]
+        exit(1)
+
+    # Make sure our socket directory is secure
+    socket_dir = path.dirname(conf['socket'])
+    uid = getpwnam(config['web_user'])
+    gid = getgrnam(config['group'])
+
+    if not path.exists(socket_dir):
+        makedirs(socket_dir, 0700)
+        chown(socket_dir, uid, gid)
+
+    st = stat(socket_dir)
+
+    if st.st_mode != 040710:
+        print "[ERROR] %s must be chmod'd to 700!" % socket_dir
+        exit(1)
+
+    elif st.uid != uid or st.gid != gid:
+        print "[ERROR] %s must be owned by %s:%s!" % (socket_dir,
+                                                      config['web_user'],
+                                                      config['group'])
+        exit(1)
+
     # Create the server, listening on a unix domain socket
     server = UnixStreamServer(conf['socket'], KeyholerDaemon)
     server.serve_forever()

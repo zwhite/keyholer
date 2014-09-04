@@ -1,4 +1,4 @@
-from keyholer import generate_code, user_keyfile, validate_key, verify_code
+from keyholer import generate_code, send_sms, user_keyfile, validate_key, verify_code
 from keyholer.line_request_handler import LineRequestHandler
 
 
@@ -9,15 +9,17 @@ class KeyholerDaemon(LineRequestHandler):
     def cmd_login(self, username):
         """Generate a token for a user and send it to them via SMS.
         """
-        authorized_keys = user_keyfile(username)
+        if not user_keyfile(username):
+            return 'False'
 
-        if authorized_keys:
-            code = generate_code(username)
-            # FIXME: Send the code via sms
-            print 'Code for %s: %s' % (username, code)
-            return 'True'
+        code = generate_code(username)
 
-        return 'False'
+        if not send_sms(username, code):
+            print '[ERROR] Could not send SMS!'
+            return 'False'
+
+        return 'True'
+
 
     def cmd_verify(self, username, code):
         """Verify the user's code and return a list of existing keys.

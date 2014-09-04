@@ -2,24 +2,42 @@
 """Listen on a UNIX domain socket to manage user SSH keys.
 """
 import json
+import re
 from os import fdopen, path, remove
 from random import randint
 from subprocess import Popen, PIPE, STDOUT
 from tempfile import mkstemp
 from time import time
 
+from twilio.rest import TwilioRestClient
 
-conf = {
-    'socket': '/var/tmp/keyholer.socket',
-    'twilio_account_sid': None,
-    'twilio_auth_token': None
-}
-usercodes = {}
+
+# Attempt to load a configuration from the config file
+conf = None
 
 for file in ('/etc/keyholer.conf', 'keyholer.conf', 'etc/keyholer.conf'):
     if path.exists(file):
-        conf = json.load(open(file))
-        break
+        print '[INFO] Loading config file from %s.' % file
+
+        try:
+            conf = json.load(open(file))
+            break
+
+        except ValueError, e:
+            print '[ERROR] Could not parse %s: %s' % (file, e)
+            exit(1)
+
+if not conf:
+    print '[ERROR] No config file could be found! Please setup one of:\n'
+    print ' * /etc/keyholer.conf'
+    print ' * etc/keyholer.conf'
+    print ' * keyholer.conf'
+    exit(1)
+
+# Setup some unfortunately necessary globalish vars
+twilio = TwilioRestClient(conf['twilio_account_sid'],
+                          conf['twilio_auth_token'])
+usercodes = {}
 
 
 def generate_code(username):
@@ -31,16 +49,69 @@ def generate_code(username):
     return code
 
 
+def send_sms(username, message):
+    """Sends an SMS to a user using twilio.
+    """
+    phonenumber = user_phonenumber(username)
+
+    if not phonenumber:
+        print '[ERROR] No phone number for %s!' % username
+        return False
+
+    print '[INFO] Sending SMS to %s(%s): %s' % (username, phonenumber, message)
+    twilio.sms.messages.create(to=phonenumber, body=message,
+                               from_=conf['sms_phone_number'])
+    return True
+
+
 def user_keyfile(username):
     """Returns the path to username's authorized_keys file.
     """
     filenames = ['authorized_keys', 'authorized_keys2']
+
     for filename in filenames:
         keypath = path.expanduser('~%s/.ssh/%s' % (username, filename))
+
         if path.exists(keypath):
             return keypath
 
+    print '[ERROR] No authorized_keys file for %s!' % username
     return None
+
+
+def user_phonenumber(username):
+    """Look up a user's phone number.
+    """
+    phonenumber = path.expanduser('~%s/.phonenumber' % username)
+
+    if not path.exists(phonenumber):
+        print '[ERROR] %s does not have a .phonenumber file!' % username
+        return None
+
+    phonenumber = open(phonenumber).read().strip()
+
+    # My users might do weird things since they are US centric. Try to
+    # massage their phone number into E164 format so twilio will accept it
+    phonenumber = re.sub('[^0-9+]', '', phonenumber)
+
+    if phonenumber[0] != '+':
+        if len(phonenumber) == 11 and phonenumber[1] == 1:
+            # Looks like a US number without the +
+            phonenumber = '+' + phonenumber
+
+        elif len(phonenumber) == 10:
+            # Looks like a US number without the +1
+            phonenumber = '+1' + phonenumber
+
+        elif phonenumber[:3] == '011':
+            # Looks like an international number as dialed from the US
+            phonenumber = '+' + phonenumber[3:]
+
+        else:
+            # Oh boy, I'm not sure what they've done, just slap a + on it
+            phonenumber = '+' + phonenumber
+
+    return phonenumber
 
 
 def validate_key(keytext):
@@ -69,7 +140,7 @@ def verify_code(username, code):
     """Returns True if the code for username is valid
     """
     if username in usercodes and usercodes[username][0] == code:
-        if time() - usercodes[username][1] < 300:
+        if time() - usercodes[username][1] < conf['token_ttl']:
             return True
 
     return False
