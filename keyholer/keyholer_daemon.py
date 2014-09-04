@@ -1,4 +1,5 @@
-from keyholer import generate_code, send_sms, user_keyfile, validate_key, verify_code
+from keyholer import conf, generate_code, send_sms, user_keyfile, \
+    validate_key, verify_code
 from keyholer.line_request_handler import LineRequestHandler
 
 
@@ -15,11 +16,10 @@ class KeyholerDaemon(LineRequestHandler):
         code = generate_code(username)
 
         if not send_sms(username, code):
-            print '[ERROR] Could not send SMS!'
+            print '[ERROR] Could not send SMS to %s!' % username
             return 'False'
 
         return 'True'
-
 
     def cmd_verify(self, username, code):
         """Verify the user's code and return a list of existing keys.
@@ -33,7 +33,8 @@ class KeyholerDaemon(LineRequestHandler):
             return 'False'
 
         # If they made it this far return a list of keys
-        keys = validate_key(open(authorized_keys).read())  # FIXME: remove this open() call
+        # FIXME: remove this open() call
+        keys = validate_key(open(authorized_keys).read())
         return 'True\n' + keys
 
     def cmd_add_key(self, username, code, *ssh_key):
@@ -50,8 +51,13 @@ class KeyholerDaemon(LineRequestHandler):
             return 'False'
 
         authorized_keys = user_keyfile(username)
+
         # If they've got this far add the new key
         with open(authorized_keys, 'a') as f:
             f.write(ssh_key + '\n')
+
+        # Tell the admin what we've done
+        if conf['admin_user']:
+            send_sms(conf['admin_user'], '%s has added a new key.' % username)
 
         return 'True'

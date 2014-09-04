@@ -1,4 +1,5 @@
 {
+    "admin_user": "",
     "web_user": "nobody",
     "group": "nobody",
     "socket": "/var/keyholer/socket",

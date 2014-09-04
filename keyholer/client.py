@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from socket import socket, AF_UNIX, SOCK_STREAM
-import sys
 
 from keyholer import conf
 
