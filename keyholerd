@@ -1,36 +1,22 @@
 #!/usr/bin/env python
 """Listen on a UNIX domain socket to manage user SSH keys.
-
-Process:
-
-    1. User visits https://darkstar.frop.org/
-    2. User enters their username, presses submit
-        2a. keyholer-fe submits command over socket, "login <username>"
-        2b. keyholer-be checks for ~<username>/.phonenumber, if bad/missing
-            return False
-        2c. keyholer-be generates and sends random code via SMS, return True
-        2d. keyholer-fe checks return value, returns error if False
-    3. keyholer-fe displays a verification page, user enters code from SMS
-        3a. keyholer-fe submits command over socket, "verify <username> <code>"
-        3b. keyholer-be checks username and code, returns false if wrong
-        3c. keyholer-be reads the user's authorized_keys, finds list of ID's
-        3d. keyholer-be returns: True <comma-separated list of ID's>
-    4. keyholer-fe displays the list of existing keys, textarea for new key
-    5. User pastes a new key into the textarea, clicks Submit
-        5a. keyholer-fe submits command over socket,
-            "add_key <username> <code> <ssh_key>"
-        5b. keyholer-be makes sure the code is valid, if not return False
-        5b. keyholer-be makes sure the ssh_key is valid, if not return False
-        5c. keyholer-be adds the key to the user's authorized_keys file
 """
+import atexit
+from os import remove
 from SocketServer import UnixStreamServer
 
-
-from keyholer import vardir
+from keyholer import conf
 from keyholer.keyholer_daemon import KeyholerDaemon
+
+
+@atexit.register
+def cleanup_socket():
+    """Removes the keyholer socket.
+    """
+    remove(conf['socket'])
 
 
 if __name__ == "__main__":
     # Create the server, listening on a unix domain socket
-    server = UnixStreamServer(vardir + '/keyholer.socket', KeyholerDaemon)
+    server = UnixStreamServer(conf['socket'], KeyholerDaemon)
     server.serve_forever()

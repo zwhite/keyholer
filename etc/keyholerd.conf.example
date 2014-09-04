@@ -1,0 +1,5 @@
+{
+    'socket': '/var/tmp/keyholer.socket',
+    'twilio_account_sid': 'REPLACE_ME_WITH_A_TWILIO_ACCOUNT_SID',
+    'twilio_auth_token': 'REPLACE_ME_WITH_YOUR_TWILIO_AUTH_TOKEN'
+}

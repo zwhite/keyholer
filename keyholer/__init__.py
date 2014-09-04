@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 """Listen on a UNIX domain socket to manage user SSH keys.
 """
-import atexit
-from glob import glob
+import json
 from os import fdopen, path, remove
 from random import randint
 from subprocess import Popen, PIPE, STDOUT
@@ -10,16 +9,17 @@ from tempfile import mkstemp
 from time import time
 
 
+conf = {
+    'socket': '/var/tmp/keyholer.socket',
+    'twilio_account_sid': None,
+    'twilio_auth_token': None
+}
 usercodes = {}
-vardir = '/var/tmp'
 
-
-@atexit.register
-def cleanup_on_exit():
-    """Removes any temp files we left laying around.
-    """
-    for file in glob(vardir + '/keyholer.*'):
-        remove(file)
+for file in ('/etc/keyholer.conf', 'keyholer.conf', 'etc/keyholer.conf'):
+    if path.exists(file):
+        conf = json.load(open(file))
+        break
 
 
 def generate_code(username):
@@ -46,7 +46,7 @@ def user_keyfile(username):
 def validate_key(keytext):
     """Verifies that keytext is a proper entry for authorized_keys
     """
-    tmpfd, tmpfile = mkstemp(dir=vardir, prefix='keyholer.')
+    tmpfd, tmpfile = mkstemp(prefix='keyholer.')
     cmd = ['ssh-keygen', '-l', '-f', tmpfile]
 
     # Write the SSH key to a temp file
@@ -59,7 +59,7 @@ def validate_key(keytext):
     remove(tmpfile)
 
     if proc.returncode == 0:
-        return True
+        return stdout
 
     print '[ERROR]', stdout
     return False

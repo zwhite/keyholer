@@ -31,14 +31,8 @@ class KeyholerDaemon(LineRequestHandler):
             return 'False'
 
         # If they made it this far return a list of keys
-        keys = []
-
-        with open(authorized_keys) as f:
-            for line in f.readlines():
-                cipher, keytext, comment = line.strip().split(' ', 2)
-                keys.append(comment)
-
-        return 'True %s' % ','.join(keys)
+        keys = validate_key(open(authorized_keys).read())  # FIXME: remove this open() call
+        return 'True\n' + keys
 
     def cmd_add_key(self, username, code, *ssh_key):
         """Add the provided ssh_key to username's authorized_keys file.
