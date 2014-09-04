@@ -17,20 +17,21 @@ from keyholer.keyholer_daemon import KeyholerDaemon
 def cleanup_socket():
     """Removes the keyholer socket.
     """
-    remove(conf['socket'])
+    if path.exists(conf['socket']):
+        remove(conf['socket'])
 
 
 if __name__ == "__main__":
     ## Make sure our environment is setup correctly
     # We should run as root, or some other user who can access authorized_keys
-    if getuser() != zwhite:  # FIXME: Change to root
+    if getuser() != 'zwhite':  # FIXME: Change to root
         print '[ERROR] You must run %s as root!' % argv[0]
         exit(1)
 
     # Make sure our socket directory is secure
     socket_dir = path.dirname(conf['socket'])
-    uid = getpwnam(config['web_user'])
-    gid = getgrnam(config['group'])
+    uid = getpwnam(conf['web_user']).pw_uid
+    gid = getgrnam(conf['group']).gr_gid
 
     if not path.exists(socket_dir):
         makedirs(socket_dir, 0700)
@@ -38,14 +39,16 @@ if __name__ == "__main__":
 
     st = stat(socket_dir)
 
-    if st.st_mode != 040710:
+    if st.st_mode != 040700:
         print "[ERROR] %s must be chmod'd to 700!" % socket_dir
         exit(1)
 
-    elif st.uid != uid or st.gid != gid:
+    elif st.st_uid != uid or st.st_gid != gid:
+        print st.st_uid, '!=', uid
+        print st.st_gid, '!=', gid
         print "[ERROR] %s must be owned by %s:%s!" % (socket_dir,
-                                                      config['web_user'],
-                                                      config['group'])
+                                                      conf['web_user'],
+                                                      conf['group'])
         exit(1)
 
     # Create the server, listening on a unix domain socket
