@@ -47,7 +47,7 @@ as possible.</p>
 <li>User enters their username, presses submit
 
 <ol>
-<li>keyholer-web submits command, "login "</li>
+<li>keyholer-web submits command, "login"</li>
 <li>keyholerd checks for ~/.phonenumber, if bad/missing return False</li>
 <li>keyholerd generates and sends random code via SMS, return True</li>
 <li>keyholer-web checks return value, returns error if False</li>
@@ -56,18 +56,18 @@ as possible.</p>
 <li>keyholer-web displays a verification page, user enters code from SMS
 
 <ol>
-<li>keyholer-web submits command, "verify <code>"</code>
+<li>keyholer-web submits command, "verify &lt;code&gt;"
 </li>
 <li>keyholerd checks username and code, returns false if wrong</li>
 <li>keyholerd reads the user's authorized_keys, finds list of ID's</li>
-<li>keyholerd returns: True\n</li>
+<li>keyholerd returns: True\n&lt;list of keys&gt;</li>
 </ol>
 </li>
 <li>keyholer-web displays the list of existing keys and  for a new key</li>
 <li>User pastes a new key into the textarea, clicks Submit
 
 <ol>
-<li>keyholer-web submits command, "add_key <code> "</code>
+<li>keyholer-web submits command, "add_key &lt;code&gt; &lt;ssh_key&gt;"
 </li>
 <li>keyholerd makes sure the code is valid, if not return False</li>
 <li>keyholerd makes sure the ssh_key is valid, if not return False</li>
