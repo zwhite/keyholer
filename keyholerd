@@ -22,9 +22,9 @@ def cleanup_socket():
 
 
 if __name__ == "__main__":
-    ## Make sure our environment is setup correctly
+    # Make sure our environment is setup correctly
     # We should run as root, or some other user who can access authorized_keys
-    if getuser() != 'zwhite':  # FIXME: Change to root
+    if getuser() != 'root':
         print '[ERROR] You must run %s as root!' % argv[0]
         exit(1)
 

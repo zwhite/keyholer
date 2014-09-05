@@ -1,0 +1,16 @@
+# You can use this file to start keyholer under systemd. Drop it into
+# /usr/lib/systemd/system and use these commands to enable it:
+#
+# chkconfig keyholer on
+# service keyholer start
+#
+[Unit]
+Description=Keyholer Daemon
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Type=simple
+WorkingDirectory=/srv/keyholer/current
+ExecStart=/srv/keyholer/current/bin/keyholerd

@@ -1,4 +1,3 @@
-* Web Frontend
 * Replace print statements with proper logging
 * Use argparse in keyholerd so we don't have to have a config file
 * Have an option to write a config file based on argparse flags
