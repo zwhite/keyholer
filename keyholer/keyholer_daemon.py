@@ -1,5 +1,6 @@
-from keyholer import conf, generate_code, send_sms, user_keyfile, \
-    validate_key, verify_code
+from keyholer import conf
+from keyholer.functions import generate_code, send_sms, user_keyfile
+from keyholer.functions import validate_key, verify_code
 from keyholer.line_request_handler import LineRequestHandler
 
 

@@ -5,6 +5,6 @@
     "socket": "/var/keyholer/socket",
     "sms_phone_number": "+15555551212",
     "token_ttl": 300,
-    "twilio_account_sid": "REPLACE_ME_WITH_A_TWILIO_ACCOUNT_SID",
+    "twilio_sid": "REPLACE_ME_WITH_A_TWILIO_ACCOUNT_SID",
     "twilio_auth_token": "REPLACE_ME_WITH_YOUR_TWILIO_AUTH_TOKEN"
 }

@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<form action="/login" method="post">
+  <h1>Login</h1>
+
+  <input type="username" name="username" placeholder="Username">
+  <input type="submit">
+</form>
+{% endblock %}

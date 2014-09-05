@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1>SSH Keys</h1>
+
+<p>You have the following keys already installed:</p>
+
+<ul>
+  {% for ssh_key in ssh_keys %}
+  <li>{{ ssh_key }}</li>
+  {% endfor %}
+</ul>
+
+<form action="add_key" method="post">
+  <input type="text" name="ssh_key" placeholder="Paste public key here">
+  <input type="hidden" name="code" value="{{ code }}">
+  <input type="hidden" name="username" value="{{ username }}">
+  <input type="submit">
+</form>
+{% endblock %}
