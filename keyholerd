@@ -53,5 +53,5 @@ if __name__ == "__main__":
 
     # Create the server, listening on a unix domain socket
     server = UnixStreamServer(conf['socket'], KeyholerDaemon)
-    chown(socket, uid, gid)
+    chown(conf['socket'], uid, gid)
     server.serve_forever()
