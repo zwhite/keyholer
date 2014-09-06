@@ -11,18 +11,18 @@ User Flow/Process:
 
 1. User visits keyholer-web
 2. User enters their username, presses submit
-    1. keyholer-web submits command, "login &lt;username&gt;"
-    2. keyholerd checks for ~&lt;username&gt;/.phonenumber, if bad/missing return False
+    1. keyholer-web submits command, "login <username>"
+    2. keyholerd checks for ~<username>/.phonenumber, if bad/missing return False
     3. keyholerd generates and sends random code via SMS, return True
     4. keyholer-web checks return value, returns error if False
 3. keyholer-web displays a verification page, user enters code from SMS
-    1. keyholer-web submits command, "verify &lt;username&gt; &lt;code&gt;"
+    1. keyholer-web submits command, "verify <username> <code>"
     2. keyholerd checks username and code, returns false if wrong
     3. keyholerd reads the user's authorized_keys, finds list of ID's
-    4. keyholerd returns: True\n&lt;list of ID's&gt;
-4. keyholer-web displays the list of existing keys and &lt;input&gt; for a new key
+    4. keyholerd returns: True\n<list of ID's>
+4. keyholer-web displays the list of existing keys and <input> for a new key
 5. User pastes a new key into the textarea, clicks Submit
-    1. keyholer-web submits command, "add_key &lt;username&gt; &lt;code&gt; &lt;ssh_key&gt;"
+    1. keyholer-web submits command, "add_key <username> <code> <ssh_key>"
     2. keyholerd makes sure the code is valid, if not return False
     3. keyholerd makes sure the ssh_key is valid, if not return False
     4. keyholerd adds the key to the user's authorized_keys file
