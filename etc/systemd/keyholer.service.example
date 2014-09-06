@@ -13,4 +13,4 @@ WantedBy=multi-user.target
 [Service]
 Type=simple
 WorkingDirectory=/srv/keyholer/current
-ExecStart=/srv/keyholer/current/bin/keyholerd
+ExecStart=/srv/keyholer/current/keyholerd

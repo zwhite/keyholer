@@ -76,4 +76,10 @@ systemd
 -------
 
 If you are on a system which uses systemd as the init system, you will find
-files that can be used to start keyholer at boot time in etc/systemd.
+files that can be used to start keyholer at boot time in etc/systemd. Simply
+copy those files to /usr/lib/systemd/system and enable the service:
+
+  # systemctl enable keyholer.service
+  # systemctl enable keyholer-web.service
+  # /bin/systemctl start keyholer.service
+  # /bin/systemctl start keyholer-web.service

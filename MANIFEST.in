@@ -1,0 +1,4 @@
+include *.rst LICENSE
+recursive-include etc *.example
+recursive-include keyholer/web/templates *.html
+recursive-include keyholer/web/static *.css *.html *.js *.png
