@@ -5,7 +5,7 @@ import json
 from os import path
 
 
-__version__ = '0.7.0'
+__version__ = '0.7.1'
 
 # Attempt to load a configuration from the config file
 conf = None
