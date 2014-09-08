@@ -14,7 +14,7 @@ def read(*paths):
 
 setup(
     name='keyholer',
-    version='0.7.1',
+    version='0.7.2',
     description='Simple SSH key management for shell servers',
     long_description=(read('README.rst') + '\n\n' +
                       read('AUTHORS.rst') + '\n\n' +
