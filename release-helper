@@ -92,11 +92,12 @@ Usage: $0 [test] [bumpversion] [pypi|testpypi]
 Tools for managing keyholer releases.
 
 This script can be used to manage keyholer releases. To use it you call the 
-script with one or more commands. Typically you will call it with all 3:
+script with one or more commands. Typically you will call it with all 4:
 
-	$0 test bumpversion testpypi
+	$0 test bumpversion testpypi pypi
 
 That command will build and test the current version, bump the patch field
-of the version number, and upload a package to the test pypi.
+of the version number, upload a package to the test pypi, then upload to
+the main pypi. If any step fails along the way the script will exit.
 EOF
 exit 1
