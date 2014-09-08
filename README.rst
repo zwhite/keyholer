@@ -11,7 +11,7 @@ User Flow/Process:
 
 1. User visits keyholer-web
 2. User enters their username, presses submit
-    1. keyholer-web submits command, "login <username>"
+    1. keyholer-web submits command to keyholerd, "login <username>"
     2. keyholerd checks for ~<username>/.phonenumber, if bad/missing return False
     3. keyholerd generates and sends random code via SMS, return True
     4. keyholer-web checks return value, returns error if False
@@ -19,13 +19,14 @@ User Flow/Process:
     1. keyholer-web submits command, "verify <username> <code>"
     2. keyholerd checks username and code, returns false if wrong
     3. keyholerd reads the user's authorized_keys, finds list of ID's
-    4. keyholerd returns: True\n<list of ID's>
-4. keyholer-web displays the list of existing keys and <input> for a new key
+    4. keyholerd returns: True\\n<list of ID's>
+4. keyholer-web displays the list of existing keys and an <input> for a new key
 5. User pastes a new key into the textarea, clicks Submit
     1. keyholer-web submits command, "add_key <username> <code> <ssh_key>"
     2. keyholerd makes sure the code is valid, if not return False
     3. keyholerd makes sure the ssh_key is valid, if not return False
     4. keyholerd adds the key to the user's authorized_keys file
+    5. keyholerd sends an sms to admin_user for alert/audit purposes
 
 Installation:
 -------------
@@ -35,14 +36,33 @@ You can use systemd, runit, screen, or any other daemon management strategy
 you'd like. Despite the name keyholerd does not currently support running in
 the background as a daemon.
 
-To run the web component you can use your favorite WSGI stack. My personal 
+To run the web component you can use your favorite WSGI stack. My personal
 setup uses nginx to proxy the requests back to a gunicorn app server.
+
+Security
+--------
+
+As this software interacts with a number of security sensitive subsystems, you
+should take great care when installing it.
+
+The keyholerd program must run as root so that it can write to users'
+authorized_keys files. You should run the web component as a dedicated
+non-priviledged user.
+
+The user's .phonenumber files must be owned by that user and chmod'd 600 or
+keyholerd will not consider that a valid user.
+
+The user's authorized_keys file must already exist or keyholerd will not
+consider that a valid user.
+
+All submitted keys are verified using "ssh-keygen -l" before being added
+to an authorized_keys file.
 
 Configuration
 -------------
 
 Keyholer requires a configuration file. You can find a sample config in
-etc/keyholer.conf.example. You should install your configuration as 
+etc/keyholer.conf.example. You should install your configuration as
 /etc/keyholer.conf and it must be valid JSON.
 
 * admin_user
@@ -77,7 +97,7 @@ systemd
 
 If you are on a system which uses systemd as the init system, you will find
 files that can be used to start keyholer at boot time in etc/systemd. Simply
-copy those files to /usr/lib/systemd/system and enable the service:
+copy those files to /usr/lib/systemd/system and enable the service::
 
   # systemctl enable keyholer.service
   # systemctl enable keyholer-web.service
