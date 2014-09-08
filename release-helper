@@ -1,0 +1,102 @@
+#!/bin/sh
+# Build and upload a package to pypi
+
+test_package() {
+	### Build and test the current package
+	if [ -d release_test ]; then
+		echo -n 'There is an existing test virtualenv. OK to remove? '
+		read answer
+		case $answer in
+			y|yes|Y|YES)
+				rm -rf release_test
+			;;
+
+			*)
+				echo "Can't proceed with test!"
+				exit 1
+			;;
+		esac
+	fi
+
+	# Build the packge
+	rm dist/*
+	python setup.py sdist
+	new_package=$(ls dist | tail -1)
+
+	# Create a virutalenv for testing in
+	virtualenv release_test || exit
+
+	# Install the dependencies from the main pypi, since the test pypi 
+	# won't have them
+	dependencies=$(grep install_requires setup.py | cut -f 2 -d = | tr -d "[]',")
+	release_test/bin/pip install $dependencies || exit
+
+	# Install the package and test any scripts
+	release_test/bin/pip install --no-index dist/$new_package || exit
+	for script in release_test/bin/*; do
+		case $script in
+			*activate*|*easy_install*|*pip*|*python*)
+			;;
+			*)
+				echo "Testing $script --help"
+				if ! $script --help; then
+					ret=$?
+					echo
+					echo "*** You must fix that error!"
+					exit $ret
+				fi
+			;;
+		esac
+	done
+}
+
+upload_package() {
+	### Build and upload the new package to the pypi
+	python setup.py sdist upload -r $1 || exit
+	python setup.py bdist_wheel upload -r $1 || exit
+}
+
+if [ -e setup.py -a $# -gt 0 ]; then
+	### Iterate through our arguments and dispatch commands
+	while [ -n "$1" ]; do
+		case $1 in
+			bumpversion)
+				bumpversion patch
+			;;
+
+			pypi|testpypi)
+				upload_package $1
+			;;
+
+			test)
+				test_package
+			;;
+
+			*)
+				echo "Unknown command: $1"
+				exit 1
+			;;
+		esac
+
+		shift
+	done
+
+	exit 0
+fi
+
+
+### If they make it here it means we need to show them the help
+cat << EOF
+Usage: $0 [test] [bumpversion] [pypi|testpypi] 
+
+Tools for managing keyholer releases.
+
+This script can be used to manage keyholer releases. To use it you call the 
+script with one or more commands. Typically you will call it with all 3:
+
+	$0 test bumpversion testpypi
+
+That command will build and test the current version, bump the patch field
+of the version number, and upload a package to the test pypi.
+EOF
+exit 1
