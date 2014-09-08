@@ -10,7 +10,7 @@ __version__ = '0.7.0'
 # Attempt to load a configuration from the config file
 conf = None
 
-for file in ('/etc/keyholer.conf', 'keyholer.conf', 'etc/keyholer.conf'):
+for file in ('keyholer.conf', 'etc/keyholer.conf', '/etc/keyholer.conf'):
     if path.exists(file):
         print '[INFO] Loading config file from %s.' % file
 

@@ -73,13 +73,13 @@ etc/keyholer.conf.example. You should install your configuration as
     * The group for the web_user
 * socket
     * The path for the socket the frontend uses to communicate with the backend. This directory must be owned by **web_user:group** and be mode 700. If if does not exist it will be created by keyholerd.
-* sms_phone_number
+* sms_number
     * The phone number that codes will be sent from
 * token_ttl
     * How many seconds a token is good for. Defaults to 300 (5 minutes)
 * twilio_sid
     * The account sid for your twilio account
-* twilio_auth_token
+* twilio_token
     * The AuthToken for your twilio account
 
 Twilio

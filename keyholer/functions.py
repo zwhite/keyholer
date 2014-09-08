@@ -14,7 +14,7 @@ from keyholer import conf
 
 
 # Setup some unfortunately necessary globalish vars
-twilio = TwilioRestClient(conf['twilio_sid'], conf['twilio_auth_token'])
+twilio = TwilioRestClient(conf['twilio_sid'], conf['twilio_token'])
 usercodes = {}
 
 
@@ -38,7 +38,7 @@ def send_sms(username, message):
 
     print '[INFO] Sending SMS to %s(%s): %s' % (username, phonenumber, message)
     twilio.sms.messages.create(to=phonenumber, body=message,
-                               from_=conf['sms_phone_number'])
+                               from_=conf['sms_number'])
     return True
 
 

@@ -3,8 +3,8 @@
     "web_user": "nobody",
     "group": "nobody",
     "socket": "/var/keyholer/socket",
-    "sms_phone_number": "+15555551212",
+    "sms_number": "+15555551212",
     "token_ttl": 300,
     "twilio_sid": "REPLACE_ME_WITH_A_TWILIO_ACCOUNT_SID",
-    "twilio_auth_token": "REPLACE_ME_WITH_YOUR_TWILIO_AUTH_TOKEN"
+    "twilio_token": "REPLACE_ME_WITH_YOUR_TWILIO_AUTH_TOKEN"
 }

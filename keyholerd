@@ -2,6 +2,8 @@
 """Listen on a UNIX domain socket to manage user SSH keys.
 """
 import atexit
+import json
+from argparse import ArgumentParser
 from getpass import getuser
 from os import chown, makedirs, path, stat, remove
 from pwd import getpwnam
@@ -13,6 +15,9 @@ from keyholer import conf
 from keyholer.keyholer_daemon import KeyholerDaemon
 
 
+__version__ = '0.7.0'
+
+
 @atexit.register
 def cleanup_socket():
     """Removes the keyholer socket.
@@ -21,7 +26,76 @@ def cleanup_socket():
         remove(conf['socket'])
 
 
+# Parse and setup our arguments
+my_args = {
+    '--admin-user': {
+        'help': "The username of the server's owner",
+    },
+    '--web-user': {
+        'help': 'The username the web app will run as.',
+    },
+    '--group': {
+        'help': 'The group for --web-user.',
+    },
+    '--socket': {
+        'help': 'The path to the socket that will be used for communication',
+    },
+    '--sms-number': {
+        'help': 'The phone number that codes will be sent from',
+    },
+    '--token-ttl': {
+        'help': 'How many seconds a token is good for. (Default: 300)',
+        'type': int,
+    },
+    '--twilio-sid': {
+        'help': 'The account sid for your twilio account',
+    },
+    '--twilio-token': {
+        'help': 'The AuthToken for your twilio account',
+    },
+    '--version': {
+        'action': 'store_true',
+        'help': 'Display the version number and exit.',
+    },
+    '--write-config': {
+        'help': 'Write the configuration to WRITE-CONFIG'
+    }
+}
+
+argparser = ArgumentParser(description=__doc__)
+for arg in sorted(my_args):
+  argparser.add_argument(arg, **my_args[arg])
+
+args = argparser.parse_args()
+
+# Merge the CLI args with the config file args
+try:
+    conf = {
+        'admin_user': args.admin_user or conf.get('admin_user', ''),
+        'web_user': args.web_user or conf['web_user'],
+        'group': args.group or conf['group'],
+        'socket': args.socket or conf['socket'],
+        'sms_number': args.sms_number or conf['sms_number'],
+        'token_ttl': args.token_ttl or conf.get('token_ttl', 300),
+        'twilio_sid': args.twilio_sid or conf['twilio_sid'],
+        'twilio_token': args.twilio_token or conf['twilio_token'],
+    }
+
+except KeyError, e:
+    print '[ERROR] Missing config key:', e
+    exit(1)
+
 if __name__ == "__main__":
+    if args.version:
+        print 'keyholerd version %s' % __version__
+        exit(0)
+
+    if args.write_config:
+        print '[INFO] Writing configuration to', args.write_config
+        with open(args.write_config, 'w') as f:
+            json.dump(conf, f, indent=4, separators=(',', ': '), sort_keys=True)
+            f.write('\n')
+
     # Make sure our environment is setup correctly
     # We should run as root, or some other user who can access authorized_keys
     if getuser() != 'root':
