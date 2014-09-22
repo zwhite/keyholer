@@ -3,7 +3,14 @@ seems neat, feel free to work on it. If you're worried I might be in the
 middle of something I'm probably not. :) If you want to make sure before
 you start working just drop me an email. 
 
+Key:
+* Feature
+! Bug
+
 Zach White <zwhite@darkstar.frop.org>
 
-* Replace print statements with proper logging
+! Replace print statements with proper logging (Prevent the admin from seeing why a user was rejected)
 * Style the web app so it's not a plain looking HTML form
+* Have the web frontend sms the admin if it can't contact the backend
+! If the user has a .phonenumber but no .ssh/authorized_keys it prompts them to enter a code but doesn't send one.
+! It's possible to find valid users. All usernames should result in the "code" page but vaild users should get SMS error messages
